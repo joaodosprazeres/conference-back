@@ -1,6 +1,21 @@
 <!--
 Sync Impact Report
 ==================
+Version change: 1.0.0 → 1.1.0
+Modified principles: none — the 8 Core Principles and Quality Gates de Engenharia are unchanged
+Added sections:
+  - Build e Deployment (new Section 4): Dockerfile por serviço, branch de release dedicada por
+    serviço com manifestos Kubernetes, promoção sob demanda (não sincronizada a cada commit)
+Removed sections: none
+Deferred TODOs: none
+Templates requiring follow-up:
+  - .specify/templates/plan-template.md — Project Structure / deployment sections of future
+    plans should reflect the per-service Dockerfile location and release/<service> branch
+    convention introduced here.
+
+--------------------------------------------------------------------------------
+Sync Impact Report (previous amendment, kept for history)
+==========================================================
 Version change: [template] → 1.0.0 (initial ratification)
 Modified principles: n/a (first adoption; constitution.md previously held only unfilled placeholders)
 Added sections:
@@ -13,11 +28,6 @@ Added sections:
 Removed sections: none (template placeholders only)
 Deferred TODOs: none — all placeholders resolved from user-provided decisions during interactive
   constitution setup (2026-09-03).
-Templates requiring follow-up:
-  - .specify/templates/plan-template.md — should reference this constitution's exception
-    mechanism (Governance §Exceções) when a plan documents a justified principle deviation.
-  - .specify/templates/tasks-template.md — no changes required; task generation already reads
-    principles at runtime.
 -->
 
 # Conference Back Constitution
@@ -122,6 +132,23 @@ outros serviços — o fake adapter existe justamente para permitir avançar sem
 um serviço real for construído, sua adoção é uma troca de adapter, não uma mudança no
 domínio do checkout.
 
+## Build e Deployment
+
+Cada microsserviço do monorepo (`cart`, `checkout`, `payment`, `order`, `inventory`) tem seu
+próprio `Dockerfile`, localizado dentro da pasta do próprio serviço (ex.:
+`services/checkout/Dockerfile`, `services/payment/Dockerfile`). Cada serviço é autocontido
+quanto à sua imagem de container — nenhum `Dockerfile` é compartilhado entre serviços.
+
+Cada microsserviço tem sua própria branch de release dedicada (ex.: `release/checkout`,
+`release/payment`), independente das demais. Os manifestos Kubernetes de deploy daquele
+serviço vivem nessa branch de release, versionados e promovidos separadamente do
+código-fonte em desenvolvimento/main. Isso permite que cada serviço seja implantado de forma
+independente, sem acoplar o ciclo de release de um serviço ao dos outros quatro.
+
+A branch de release de um serviço só recebe atualização de manifesto quando aquele serviço
+tem uma nova versão pronta para deploy — não é sincronizada automaticamente a cada commit em
+main.
+
 ## Governance
 
 Esta constituição tem precedência sobre qualquer prática, convenção de time ou decisão de
@@ -151,4 +178,4 @@ impacto nos templates dependentes (`plan-template.md`, `spec-template.md`,
 princípios desta constituição antes do merge, adicionalmente aos Quality Gates de
 Engenharia.
 
-**Version**: 1.0.0 | **Ratified**: 2026-09-03 | **Last Amended**: 2026-09-03
+**Version**: 1.1.0 | **Ratified**: 2026-09-03 | **Last Amended**: 2026-09-03

@@ -1,7 +1,15 @@
 {
   "permissions": {
     "allow": [
-      "Bash(bash .specify/scripts/bash/resolve-template.sh constitution-template --json)"
+      "Bash(bash .specify/scripts/bash/resolve-template.sh constitution-template --json)",
+      "Bash(docker compose *)",
+      "Bash(curl -s -X POST http://localhost:8000/v1/checkout-sessions -H 'Content-Type: application/json' -d '{\"cart_id\": \"cart-1\", \"items\": [{\"product_id\": \"sku-1\", \"quantity\": 2, \"unit_price\": 10.0}, {\"product_id\": \"sku-2\", \"quantity\": 3, \"unit_price\": 1.5}]}')",
+      "Bash(python3 -m json.tool)",
+      "Bash(curl -s http://localhost:8000/v1/checkout-sessions/99aceca6-be91-41ce-84c1-1d38999c01de)",
+      "Bash(curl -s -o /dev/null -w '%{http_code}\\\\n' -X POST http://localhost:8000/v1/checkout-sessions -H 'Content-Type: application/json' -d '{\"cart_id\": \"cart-2\", \"items\": [{\"product_id\": \"sku-1\", \"quantity\": 1, \"unit_price\": 1.0}], \"payment_method\": \"credit_card\"}')"
+    ],
+    "additionalDirectories": [
+      "/home/wsl/.claude/projects/-home-wsl-git-github-com-conference-back"
     ]
   }
 }

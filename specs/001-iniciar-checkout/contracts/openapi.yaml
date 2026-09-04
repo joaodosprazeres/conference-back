@@ -1,0 +1,116 @@
+openapi: 3.0.3
+info:
+  title: Checkout Service API
+  version: "1.0"
+  description: >
+    Contrato da API síncrona do serviço de checkout (Princípio VII da constituição).
+    Esta versão cobre apenas a feature "Iniciar Checkout" (001-iniciar-checkout).
+servers:
+  - url: /v1
+paths:
+  /checkout-sessions:
+    post:
+      summary: Inicia uma sessão de checkout a partir de um carrinho
+      operationId: iniciarCheckout
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IniciarCheckoutRequest'
+      responses:
+        '201':
+          description: Sessão de checkout criada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckoutSessionResponse'
+        '422':
+          description: >
+            Requisição estruturalmente inválida (ex.: lista de itens vazia, quantidade ou
+            preço unitário inválidos). Não cobre validação de negócio adicional — ver
+            spec.md Assumptions.
+
+  /checkout-sessions/{session_id}:
+    get:
+      summary: Consulta o status de uma sessão de checkout (usado pelo módulo de carrinho)
+      operationId: consultarSessaoCheckout
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Estado atual da sessão
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckoutSessionResponse'
+        '404':
+          description: Sessão não encontrada
+
+  /health:
+    get:
+      summary: Health check do serviço (Princípio VIII — Observabilidade)
+      operationId: health
+      responses:
+        '200':
+          description: Serviço saudável
+
+components:
+  schemas:
+    ItemCarrinho:
+      type: object
+      required: [product_id, quantity, unit_price]
+      properties:
+        product_id:
+          type: string
+        quantity:
+          type: integer
+          minimum: 1
+        unit_price:
+          type: number
+          format: decimal
+          minimum: 0
+
+    IniciarCheckoutRequest:
+      type: object
+      required: [cart_id, items]
+      additionalProperties: false
+      properties:
+        cart_id:
+          type: string
+        items:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/ItemCarrinho'
+
+    CheckoutSessionResponse:
+      type: object
+      required: [session_id, cart_id, status, total, expires_at]
+      properties:
+        session_id:
+          type: string
+          format: uuid
+        cart_id:
+          type: string
+        status:
+          type: string
+          enum: [INICIADO, EXPIRADO]
+          description: >
+            Calculado no momento da leitura, comparando o horário atual com expires_at
+            (ver data-model.md — Máquina de Estados).
+        total:
+          type: string
+          pattern: '^-?[0-9]+(\.[0-9]+)?$'
+          description: >
+            Valor decimal representado como string para preservar precisão exata
+            (Pydantic/FastAPI serializam Decimal como string por padrão, evitando
+            erro de arredondamento de float em valor monetário).
+        expires_at:
+          type: string
+          format: date-time

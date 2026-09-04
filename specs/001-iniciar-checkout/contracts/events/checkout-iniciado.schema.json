@@ -1,0 +1,52 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CheckoutIniciado",
+  "description": "Evento informativo publicado ao criar uma sessão de checkout. Modelado como modelo Pydantic versionado em libs/contracts/src/contracts/events/checkout_iniciado.py (Princípio IV da constituição). Segue o piso de garantia de entrega do Princípio III (outbox transacional).",
+  "type": "object",
+  "required": [
+    "event_type",
+    "event_version",
+    "saga_id",
+    "session_id",
+    "cart_id",
+    "total",
+    "expires_at",
+    "occurred_at"
+  ],
+  "properties": {
+    "event_type": {
+      "const": "CheckoutIniciado"
+    },
+    "event_version": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "saga_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Igual ao session_id nesta feature; identifica a saga em toda a jornada de checkout (Princípio V)."
+    },
+    "session_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "cart_id": {
+      "type": "string"
+    },
+    "total": {
+      "type": "string",
+      "pattern": "^-?[0-9]+(\\.[0-9]+)?$",
+      "description": "Valor decimal representado como string para preservar precisão exata (evita erro de arredondamento de float em valor monetário) - assim que Pydantic/FastAPI serializam Decimal por padrão."
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "occurred_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp de quando o evento foi originado (criação da sessão), distinto de quando foi efetivamente publicado pelo outbox relay."
+    }
+  },
+  "additionalProperties": false
+}

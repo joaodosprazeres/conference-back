@@ -1,0 +1,18 @@
+# Contexto de build e a raiz do workspace uv (ver services/checkout/Dockerfile).
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+**/tests/
+.git/
+.env
+.env.*
+*.log
+specs/
+.specify/
+.claude/
